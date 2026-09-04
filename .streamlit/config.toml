@@ -1,0 +1,21 @@
+# Configuration compatible Streamlit Cloud.
+# NE PAS ajouter server.port, server.address, browser.serverAddress/serverPort
+# ni headless = false : c'est exactement ce qui empechait le demarrage en ligne.
+
+[theme]
+base = "light"
+primaryColor = "#2D5BFF"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F7FB"
+textColor = "#1B2559"
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = true
