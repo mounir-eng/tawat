@@ -162,6 +162,23 @@ CREATE TABLE IF NOT EXISTS ouvriers (
     tarif_jour REAL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS artisans (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom           TEXT NOT NULL,   -- nom en arabe ou en latin
+    nom_fr        TEXT,            -- nom en caracteres latins (PDF, tri)
+    metier        TEXT,
+    wilaya        INTEGER,         -- code wilaya (voir core/wilayas.py)
+    commune       TEXT,
+    telephone     TEXT,
+    tarif_jour    REAL DEFAULT 0,
+    note          REAL DEFAULT 0,  -- appreciation sur 5
+    specialites   TEXT,            -- mots-cles separes par des virgules
+    disponible    INTEGER DEFAULT 1,
+    rip           TEXT,            -- compte BaridiMob / CCP
+    remarque      TEXT,
+    date_creation TEXT
+);
+
 CREATE TABLE IF NOT EXISTS parametres (
     cle    TEXT PRIMARY KEY,
     valeur TEXT
@@ -171,6 +188,8 @@ CREATE INDEX IF NOT EXISTS idx_lignes_doc  ON lignes_document(document_id);
 CREATE INDEX IF NOT EXISTS idx_pay_doc     ON paiements(document_id);
 CREATE INDEX IF NOT EXISTS idx_pay_chant   ON paiements(chantier_id);
 CREATE INDEX IF NOT EXISTS idx_mat_chant   ON depenses_materiaux(chantier_id);
+CREATE INDEX IF NOT EXISTS idx_art_metier  ON artisans(metier);
+CREATE INDEX IF NOT EXISTS idx_art_wilaya  ON artisans(wilaya);
 CREATE INDEX IF NOT EXISTS idx_mo_chant    ON paie_main_oeuvre(chantier_id);
 CREATE INDEX IF NOT EXISTS idx_doc_client  ON devis_factures(client_id);
 """
@@ -180,6 +199,9 @@ DEFAUTS = {
     "entreprise_metier": "",
     "entreprise_tel": "",
     "entreprise_adresse": "",
+    "entreprise_ville": "",
+    "entreprise_wilaya": "",      # code wilaya (core/wilayas.py)
+    "entreprise_rip": "",         # compte BaridiMob : active le bouton de paiement
     "entreprise_slogan": "",
     "marge_cible": "30",          # % de marge consideree saine
     "tarif_jour_defaut": "3000",
@@ -226,7 +248,11 @@ def _migrer(conn):
         "devis_factures": [("echeance", "TEXT"), ("cree_le", "TEXT"),
                            ("type_batiment", "TEXT"),
                            ("mode_prix", "TEXT DEFAULT 'pose'")],
-        "clients": [("ville", "TEXT")],
+        "clients": [("ville", "TEXT"), ("wilaya", "INTEGER"), ("metier", "TEXT")],
+        "artisans": [("nom_fr", "TEXT"), ("wilaya", "INTEGER"), ("commune", "TEXT"),
+                     ("tarif_jour", "REAL DEFAULT 0"), ("note", "REAL DEFAULT 0"),
+                     ("specialites", "TEXT"), ("disponible", "INTEGER DEFAULT 1"),
+                     ("rip", "TEXT"), ("remarque", "TEXT")],
         "depenses_materiaux": [("photo", "TEXT")],
     }
     for table, cols in ajouts.items():
