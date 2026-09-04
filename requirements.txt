@@ -4,3 +4,6 @@ numpy<3
 fpdf2>=2.7
 openpyxl>=3.1
 pyarrow<25
+streamlit
+streamlit-option-menu
+pandas
