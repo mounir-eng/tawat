@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artisan DZ — Design system</title>
+<style>
+:root{
+  --bg:#FFFFFF; --soft:#F9F8F7; --surface2:#F0EFED; --border:#E6E5E3;
+  --text:#2C2C2B; --muted:#7D7A75; --ink:#1B2431;
+  --blue:#2783DE; --blue-soft:#E5F2FC;
+  --green:#46A171; --green-soft:#E8F1EC;
+  --amber:#D5803B; --amber-soft:#FBEBDE;
+  --red:#E56458; --red-soft:#FCE9E7;
+  --r8:8px; --r12:12px; --r16:16px;
+  --sh:0 1px 2px rgba(0,0,0,.05), 0 4px 12px rgba(0,0,0,.04);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#EDECEA;color:var(--text);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.board{padding:48px 32px 64px;max-width:1376px;margin:0 auto}
+.board h1{font-size:32px;letter-spacing:-.02em}
+.board .sub{color:var(--muted);margin-top:8px;font-size:15px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.swatch{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.dot{width:14px;height:14px;border-radius:5px}
+.row{display:flex;gap:32px;flex-wrap:wrap;margin-top:40px;align-items:flex-start}
+.frame{width:390px;flex:0 0 390px}
+.frame .cap{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
+.phone{width:390px;height:844px;background:var(--bg);border:1px solid var(--border);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.10);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* ---------- app chrome ---------- */
+.appbar{padding:18px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:var(--bg);border-bottom:1px solid var(--border)}
+.appbar h2{font-size:22px;letter-spacing:-.01em}
+.appbar .meta{color:var(--muted);font-size:13px;margin-top:2px}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;position:relative}
+.iconbtn.accent{background:var(--ink);border-color:var(--ink);color:#fff}
+.iconbtn.wide{width:auto;padding:0 16px;font-size:14px;font-weight:700;gap:6px}
+.badge-dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #fff}
+.scroll{flex:1;overflow:hidden;padding:14px 20px 88px;background:var(--soft)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(255,255,255,.96);border-top:1px solid var(--border);display:flex;align-items:stretch;padding:6px 4px 10px;backdrop-filter:blur(8px)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted);min-width:44px}
+.tab .ic{font-size:19px;line-height:1}
+.tab.on{color:var(--blue);font-weight:650}
+.tab.on .ic{filter:none}
+
+/* ---------- primitives ---------- */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:16px;box-shadow:var(--sh)}
+.card+.card{margin-top:12px}
+.h-sec{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+.h-sec:first-child{margin-top:4px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:650;border:1px solid transparent;white-space:nowrap}
+.p-blue{background:var(--blue-soft);color:#1A5FA5}
+.p-green{background:var(--green-soft);color:#2F7452}
+.p-amber{background:var(--amber-soft);color:#9C5A21}
+.p-red{background:var(--red-soft);color:#B24338}
+.p-grey{background:var(--surface2);color:var(--muted)}
+.money{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:-.01em}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.xs{font-size:12px}
+
+/* KPI */
+.kpi-hero{background:linear-gradient(155deg,#1B2431 0%,#243447 100%);color:#fff;border-radius:var(--r16);padding:18px 18px 16px}
+.kpi-hero .lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.62);font-weight:600}
+.kpi-hero .val{font-size:29px;font-weight:750;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi-hero .val small{font-size:15px;font-weight:600;opacity:.7;margin-left:4px}
+.hero-split{display:flex;gap:10px;margin-top:16px}
+.hero-split div{flex:1;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 11px}
+.hero-split .k{font-size:11.5px;color:rgba(255,255,255,.66);font-weight:600}
+.hero-split .v{font-size:16px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qa{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:13px 12px;display:flex;align-items:center;gap:10px;min-height:60px;box-shadow:var(--sh)}
+.qa .ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 36px}
+.qa .t{font-size:14px;font-weight:650;line-height:1.25}
+.qa .s{font-size:11.5px;color:var(--muted)}
+
+/* progress / marge */
+.bar{height:7px;border-radius:99px;background:var(--surface2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend-mini{display:flex;gap:12px;margin-top:8px;font-size:11.5px;color:var(--muted);flex-wrap:wrap}
+.legend-mini span{display:flex;align-items:center;gap:5px}
+.legend-mini b{width:8px;height:8px;border-radius:3px;display:inline-block}
+
+/* chips */
+.chips{display:flex;gap:8px;overflow:hidden;margin-bottom:12px}
+.chip{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .n{background:var(--surface2);color:var(--muted);border-radius:99px;padding:0 6px;font-size:11px;font-weight:700}
+.chip.on .n{background:rgba(255,255,255,.2);color:#fff}
+
+.search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:11px 13px;color:var(--muted);font-size:14px;margin-bottom:12px}
+
+/* doc row */
+.grouphead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 8px;font-size:13px}
+.grouphead b{font-size:13.5px}
+.doc{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:14px;box-shadow:var(--sh)}
+.doc+.doc{margin-top:10px}
+.doc .av{width:40px;height:40px;border-radius:11px;background:var(--blue-soft);color:#1A5FA5;font-weight:750;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 40px}
+.doc .num{font-size:11.5px;color:var(--muted);font-weight:650;letter-spacing:.03em}
+.doc .nm{font-size:15px;font-weight:680;margin-top:1px}
+.doc .ds{font-size:12.5px;color:var(--muted);margin-top:2px}
+.doc .rt{text-align:right;flex:0 0 auto}
+.stepline{display:flex;align-items:center;gap:4px;margin-top:9px}
+.stepline i{height:4px;flex:1;border-radius:99px;background:var(--surface2)}
+.stepline i.done{background:var(--blue)}
+.stepline span{font-size:11px;color:var(--muted);margin-left:6px;white-space:nowrap}
+
+/* fab */
+.fab{position:absolute;right:18px;bottom:88px;height:52px;border-radius:26px;background:var(--blue);color:#fff;display:flex;align-items:center;gap:8px;padding:0 20px;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(39,131,222,.38)}
+
+/* modal */
+.scrim{position:absolute;inset:0;background:rgba(27,36,49,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:18px 20px 24px;max-height:88%;overflow:hidden}
+.sheet .grab{width:38px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 14px}
+.sheet h3{font-size:19px;letter-spacing:-.01em}
+.field{margin-top:14px}
+.field .lb{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:650;margin-bottom:6px}
+.field .lb a{color:var(--blue);font-weight:650;text-decoration:none;font-size:12.5px}
+.input{border:1px solid var(--border);border-radius:10px;padding:12px 13px;font-size:14.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:#fff;min-height:46px}
+.input.filled{color:var(--text);font-weight:600}
+.tpl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.tplc{border:1px solid var(--border);border-radius:var(--r12);padding:12px;display:flex;gap:10px;align-items:center;min-height:64px}
+.tplc.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 1px var(--blue) inset}
+.tplc .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--surface2);flex:0 0 34px}
+.tplc .t{font-size:14px;font-weight:660;line-height:1.2}
+.tplc .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.btn{border-radius:12px;padding:14px;text-align:center;font-weight:700;font-size:15px;min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn.pri{background:var(--blue);color:#fff}
+.btn.gho{background:#fff;border:1px solid var(--border);color:var(--text)}
+.btn.ink{background:var(--ink);color:#fff}
+.orsep{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:16px 0}
+.orsep:before,.orsep:after{content:"";height:1px;background:var(--border);flex:1}
+
+/* editor line */
+.line{border:1px solid var(--border);border-radius:var(--r12);background:#fff;padding:13px;box-shadow:var(--sh)}
+.line+.line{margin-top:10px}
+.line .top{display:flex;gap:10px;align-items:flex-start}
+.line .desc{flex:1;font-size:15px;font-weight:650;line-height:1.3}
+.line .acts{display:flex;gap:6px;color:var(--muted);font-size:15px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin-top:11px}
+.mini{border:1px solid var(--border);border-radius:10px;padding:7px 9px;background:var(--soft)}
+.mini .k{font-size:10.5px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.04em}
+.mini .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+.privrow{margin-top:11px;border-top:1px dashed var(--border);padding-top:10px}
+.privrow .hd{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--amber);font-weight:650}
+.privgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.linetot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
+.totbar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);padding:12px 18px 16px;box-shadow:0 -6px 18px rgba(0,0,0,.06)}
+.totbar .l1{display:flex;justify-content:space-between;align-items:baseline}
+.totbar .l1 .v{font-size:25px;font-weight:780;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+/* desktop preview */
+.desk{margin-top:56px;background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+.desk .top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border)}
+.desk .nav{display:flex;gap:4px}
+.desk .nav a{padding:9px 14px;border-radius:10px;font-size:14px;font-weight:620;color:var(--muted);text-decoration:none}
+.desk .nav a.on{background:var(--surface2);color:var(--text)}
+.desk .body{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;padding:24px;background:var(--soft)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.01em}
+.brand .lg{width:32px;height:32px;border-radius:9px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+.kpis3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px}
+.kpi .k{font-size:12px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:23px;font-weight:760;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:0 0 8px}
+td{padding:11px 0;border-top:1px solid var(--border);vertical-align:middle}
+td.r,th.r{text-align:right}
+</style>
+</head>
+<body>
+<div class="board">
+  <h1>Artisan DZ — système de design</h1>
+  <p class="sub">Application de gestion pour artisans du bâtiment · Dinar algérien · sans TVA · mobile d'abord</p>
+  <div class="legend">
+    <div class="swatch"><span class="dot" style="background:#1B2431"></span>Encre #1B2431</div>
+    <div class="swatch"><span class="dot" style="background:#2783DE"></span>Action #2783DE</div>
+    <div class="swatch"><span class="dot" style="background:#46A171"></span>Encaissé #46A171</div>
+    <div class="swatch"><span class="dot" style="background:#D5803B"></span>Privé / marge #D5803B</div>
+    <div class="swatch"><span class="dot" style="background:#E56458"></span>Kredi #E56458</div>
+    <div class="swatch">Rayon 8–16px · Cibles 44px · Contraste AA</div>
+  </div>
+
+  <div class="row">
+
+    <!-- ============ 1. ACCUEIL ============ -->
+    <div class="frame">
+      <div class="cap">1 · Accueil — la journée en un écran</div>
+      <div class="phone">
+        <div class="appbar">
+          <div>
+            <h2>Sbah el kheir, Mounir</h2>
+            <div class="meta">Samedi 29 août · 3 chantiers actifs</div>
+          </div>
+          <div class="iconbtn">🔔<span class="badge-dot">4</span></div>
+        </div>
+        <div class="scroll">
+          <div class="kpi-hero">
+            <div class="lbl">Ce mois · encaissé</div>
+            <div class="val">412 000<small>DZD</small></div>
+            <div class="hero-split" style="margin-top:12px">
+              <div><div class="k">Bénéfice net</div><div class="v">168 500</div></div>
+              <div><div class="k">Kredi client</div><div class="v" style="color:#FFB4AC">112 000</div></div>
+            </div>
+          </div>
+
+          <div class="h-sec" style="margin-top:18px">Que voulez-vous faire ?</div>
+          <div class="quick">
+            <div class="qa"><div class="ic" style="background:var(--blue-soft)">📝</div><div><div class="t">Nouveau devis</div><div class="s">Modèle métier</div></div></div>
+            <div class="qa"><div class="ic" style="background:var(--amber-soft)">🧾</div><div><div class="t">Dépense</div><div class="s">Photo du ticket</div></div></div>
+            <div class="qa"><div class="ic" style="background:var(--green-soft)">💵</div><div><div class="t">Encaisser</div><div class="s">Acompte client</div></div></div>
+            <div class="qa"><div class="ic" style="background:var(--surface2)">👷</div><div><div class="t">Pointer</div><div class="s">Journée ouvrier</div></div></div>
+          </div>
+
+          <div class="h-sec" style="margin-top:18px">Chantier du jour</div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;gap:10px">
+              <div>
+                <div style="font-size:15.5px;font-weight:700">Villa Dar El Beïda</div>
+                <div class="small muted">Peinture · Mme Kadri</div>
+              </div>
+              <span class="pill p-green">Marge 34 %</span>
+            </div>
+            <div class="bar" style="margin-top:12px">
+              <i style="width:34%;background:var(--amber)"></i>
+              <i style="width:32%;background:#8C8880"></i>
+              <i style="width:34%;background:var(--green)"></i>
+            </div>
+            <div class="legend-mini">
+              <span><b style="background:var(--amber)"></b>Matériaux 75 900</span>
+              <span><b style="background:#8C8880"></b>Ouvriers 66 000</span>
+              <span><b style="background:var(--green)"></b>Bénéfice 72 100</span>
+            </div>
+          </div>
+
+          <div class="h-sec" style="margin-top:18px">À relancer aujourd'hui</div>
+          <div class="card" style="display:flex;gap:12px;align-items:center">
+            <div class="av" style="width:40px;height:40px;border-radius:11px;background:var(--red-soft);color:#B24338;font-weight:750;display:flex;align-items:center;justify-content:center;flex:0 0 40px">SM</div>
+            <div style="flex:1">
+              <div style="font-weight:660;font-size:14.5px">Sofiane Mansouri</div>
+              <div class="xs muted">FA-2026-014 · 18 jours de retard</div>
+            </div>
+            <div style="text-align:right">
+              <div class="money" style="color:#B24338">112 000</div>
+              <div class="xs muted">DZD</div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab on"><span class="ic">🏠</span>Accueil</div>
+          <div class="tab"><span class="ic">📝</span>Devis</div>
+          <div class="tab"><span class="ic">🏗️</span>Chantiers</div>
+          <div class="tab"><span class="ic">💳</span>Kredi</div>
+          <div class="tab"><span class="ic">⋯</span>Plus</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 2. LISTE DEVIS ============ -->
+    <div class="frame">
+      <div class="cap">2 · Devis — filtres et statuts lisibles</div>
+      <div class="phone">
+        <div class="appbar">
+          <div>
+            <h2>Devis</h2>
+            <div class="meta">7 devis · 1 284 000 DZD</div>
+          </div>
+          <div class="iconbtn accent">⚡</div>
+        </div>
+        <div class="scroll">
+          <div class="search">🔎 Rechercher n°, client, chantier…</div>
+          <div class="chips">
+            <div class="chip on">Tous <span class="n">7</span></div>
+            <div class="chip">Brouillons <span class="n">2</span></div>
+            <div class="chip">Envoyés <span class="n">3</span></div>
+            <div class="chip" style="flex:0 0 auto">≡</div>
+          </div>
+
+          <div class="grouphead"><b>Août 2026</b><span class="muted small money">742 000 DZD</span></div>
+
+          <div class="doc">
+            <div class="av">MK</div>
+            <div style="flex:1;min-width:0">
+              <div class="num">DV-2026-014</div>
+              <div class="nm">Mme Kadri</div>
+              <div class="ds">Villa Dar El Beïda · 6 postes</div>
+              <div class="stepline"><i class="done"></i><i class="done"></i><i></i><i></i><span>Envoyé</span></div>
+            </div>
+            <div class="rt">
+              <div class="money">224 000</div>
+              <div class="xs muted">DZD</div>
+              <span class="pill p-blue" style="margin-top:6px">Envoyé</span>
+            </div>
+          </div>
+
+          <div class="doc">
+            <div class="av" style="background:var(--green-soft);color:#2F7452">SA</div>
+            <div style="flex:1;min-width:0">
+              <div class="num">DV-2026-013</div>
+              <div class="nm">Si Ahmed Belkacem</div>
+              <div class="ds">Carrelage séjour · 2 postes</div>
+              <div class="stepline"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><span>Facturé</span></div>
+            </div>
+            <div class="rt">
+              <div class="money">72 000</div>
+              <div class="xs muted">DZD</div>
+              <span class="pill p-green" style="margin-top:6px">Accepté</span>
+            </div>
+          </div>
+
+          <div class="doc">
+            <div class="av" style="background:var(--surface2);color:var(--muted)">HB</div>
+            <div style="flex:1;min-width:0">
+              <div class="num">DV-2026-012</div>
+              <div class="nm">Hocine Brahimi</div>
+              <div class="ds">Plâtre plafond · 3 postes</div>
+              <div class="stepline"><i class="done"></i><i></i><i></i><i></i><span>Brouillon</span></div>
+            </div>
+            <div class="rt">
+              <div class="money">96 500</div>
+              <div class="xs muted">DZD</div>
+              <span class="pill p-grey" style="margin-top:6px">Brouillon</span>
+            </div>
+          </div>
+        </div>
+        <div class="fab">＋ Devis</div>
+        <div class="tabbar">
+          <div class="tab"><span class="ic">🏠</span>Accueil</div>
+          <div class="tab on"><span class="ic">📝</span>Devis</div>
+          <div class="tab"><span class="ic">🏗️</span>Chantiers</div>
+          <div class="tab"><span class="ic">💳</span>Kredi</div>
+          <div class="tab"><span class="ic">⋯</span>Plus</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 3. MODALE NOUVEAU DEVIS ============ -->
+    <div class="frame">
+      <div class="cap">3 · Nouveau devis — 3 chemins, zéro page blanche</div>
+      <div class="phone">
+        <div class="appbar">
+          <div><h2>Devis</h2><div class="meta">7 devis · 1 284 000 DZD</div></div>
+          <div class="iconbtn accent">⚡</div>
+        </div>
+        <div class="scroll"><div class="search">🔎 Rechercher n°, client, chantier…</div></div>
+        <div class="scrim">
+          <div class="sheet">
+            <div class="grab"></div>
+            <h3>Nouveau devis</h3>
+            <div class="field">
+              <div class="lb"><span>Client *</span><a href="#">＋ Créer en 5 s</a></div>
+              <div class="input">Sélectionner un client <span class="muted">▾</span></div>
+            </div>
+            <div class="field">
+              <div class="lb"><span>Partir d'un modèle métier</span><span class="xs muted">cumulables</span></div>
+              <div class="tpl">
+                <div class="tplc sel"><div class="ic" style="background:#fff">🎨</div><div><div class="t">Peinture</div><div class="s">5 postes · 550 DZD/m²</div></div></div>
+                <div class="tplc"><div class="ic">🧱</div><div><div class="t">Maçonnerie</div><div class="s">4 postes</div></div></div>
+                <div class="tplc"><div class="ic">🚿</div><div><div class="t">Plomberie</div><div class="s">4 postes</div></div></div>
+                <div class="tplc"><div class="ic">⚡</div><div><div class="t">Électricité</div><div class="s">5 postes</div></div></div>
+                <div class="tplc"><div class="ic">⬜</div><div><div class="t">Plâtre</div><div class="s">4 postes</div></div></div>
+                <div class="tplc"><div class="ic">🔲</div><div><div class="t">Carrelage</div><div class="s">4 postes</div></div></div>
+              </div>
+            </div>
+            <div class="orsep">ou</div>
+            <div class="btn ink">⚡ Devis Éclair — dictez « 45 m² peinture 550 »</div>
+            <div style="height:10px"></div>
+            <div class="btn gho">＋ Devis vierge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 4. EDITEUR ============ -->
+    <div class="frame">
+      <div class="cap">4 · Éditeur — marge privée en direct</div>
+      <div class="phone">
+        <div class="appbar">
+          <div>
+            <h2>DV-2026-014</h2>
+            <div class="meta">Mme Kadri · brouillon enregistré</div>
+          </div>
+          <div class="iconbtn">✕</div>
+        </div>
+        <div class="scroll" style="padding-bottom:150px">
+          <div class="card" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="xs muted" style="font-weight:650">MARGE PRÉVISIONNELLE</div>
+              <div style="font-size:19px;font-weight:750">+ 72 100 <span class="small muted">DZD · 34 %</span></div>
+            </div>
+            <span class="pill p-green">Saine</span>
+          </div>
+
+          <div class="h-sec">6 postes</div>
+
+          <div class="line">
+            <div class="top">
+              <div class="desc">Préparation murs + enduit de lissage</div>
+              <div class="acts">📋 🗑️</div>
+            </div>
+            <div class="grid3">
+              <div class="mini"><div class="k">Qté</div><div class="v">180</div></div>
+              <div class="mini"><div class="k">Unité</div><div class="v" style="font-size:14px">m²</div></div>
+              <div class="mini"><div class="k">P.U. DZD</div><div class="v">350</div></div>
+            </div>
+            <div class="privrow">
+              <div class="hd"><span>🔒 Détails artisan — non visible client</span><span>▾</span></div>
+              <div class="privgrid">
+                <div class="mini"><div class="k">Coût matériaux</div><div class="v" style="font-size:14px">120 /m²</div></div>
+                <div class="mini"><div class="k">Coût pose</div><div class="v" style="font-size:14px">90 /m²</div></div>
+              </div>
+            </div>
+            <div class="linetot">
+              <span class="pill p-green">Marge 40 %</span>
+              <span class="money" style="font-size:17px">63 000 DZD</span>
+            </div>
+          </div>
+
+          <div class="line">
+            <div class="top">
+              <div class="desc">Peinture 2 couches intérieur</div>
+              <div class="acts">📋 🗑️</div>
+            </div>
+            <div class="grid3">
+              <div class="mini"><div class="k">Qté</div><div class="v">180</div></div>
+              <div class="mini"><div class="k">Unité</div><div class="v" style="font-size:14px">m²</div></div>
+              <div class="mini"><div class="k">P.U. DZD</div><div class="v">550</div></div>
+            </div>
+            <div class="linetot">
+              <span class="pill p-amber">Marge 18 % · basse</span>
+              <span class="money" style="font-size:17px">99 000 DZD</span>
+            </div>
+          </div>
+        </div>
+        <div class="totbar">
+          <div class="l1"><span class="small muted">Total client · sans TVA</span><span class="v">224 000</span></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <div class="btn gho" style="flex:0 0 96px">Aperçu</div>
+            <div class="btn pri" style="flex:1">Envoyer au client</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <div class="desk">
+    <div class="top">
+      <div class="brand"><span class="lg">🧱</span> Artisan DZ</div>
+      <div class="nav">
+        <a class="on" href="#">Accueil</a><a href="#">Devis</a><a href="#">Chantiers</a>
+        <a href="#">Clients</a><a href="#">Kredi</a><a href="#">Calculs</a><a href="#">Réglages</a>
+      </div>
+      <div style="display:flex;gap:8px"><div class="iconbtn">⚡</div><div class="iconbtn accent wide">＋ Nouveau devis</div></div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="kpis3">
+          <div class="kpi"><div class="k">Encaissé ce mois</div><div class="v">412 000</div><div class="d" style="color:var(--green)">▲ 18 % vs juillet</div></div>
+          <div class="kpi"><div class="k">Bénéfice net</div><div class="v">168 500</div><div class="d muted">marge 41 %</div></div>
+          <div class="kpi"><div class="k">Kredi client</div><div class="v" style="color:#B24338">112 000</div><div class="d" style="color:var(--red)">2 relances à faire</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <b style="font-size:15px">Derniers documents</b><span class="small" style="color:var(--blue);font-weight:650">Tout voir</span>
+          </div>
+          <table>
+            <tr><th>N°</th><th>Client</th><th>Statut</th><th class="r">Total</th><th class="r">Reste</th></tr>
+            <tr><td><b>DV-2026-014</b></td><td>Mme Kadri</td><td><span class="pill p-blue">Envoyé</span></td><td class="r money">224 000</td><td class="r muted">—</td></tr>
+            <tr><td><b>FA-2026-013</b></td><td>Si Ahmed Belkacem</td><td><span class="pill p-green">Payé</span></td><td class="r money">72 000</td><td class="r muted">0</td></tr>
+            <tr><td><b>FA-2026-011</b></td><td>Sofiane Mansouri</td><td><span class="pill p-red">Retard 18 j</span></td><td class="r money">224 000</td><td class="r money" style="color:#B24338">112 000</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <b style="font-size:15px">Rentabilité · Villa Dar El Beïda</b>
+          <div class="bar" style="margin-top:14px">
+            <i style="width:34%;background:var(--amber)"></i><i style="width:32%;background:#8C8880"></i><i style="width:34%;background:var(--green)"></i>
+          </div>
+          <div class="legend-mini">
+            <span><b style="background:var(--amber)"></b>Matériaux 75 900</span>
+            <span><b style="background:#8C8880"></b>Ouvriers 66 000</span>
+            <span><b style="background:var(--green)"></b>Bénéfice 72 100</span>
+          </div>
+          <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+            <span class="small muted">Encaissé 224 000 · Dépensé 141 900</span><span class="pill p-green">Marge 34 %</span>
+          </div>
+        </div>
+        <div class="card">
+          <b style="font-size:15px">Relance WhatsApp prête</b>
+          <div class="small muted" style="margin-top:8px;background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:11px;line-height:1.45">
+            Sbah el kheir Sofiane, تذكير بسيط : باقي 112 000 دج من مجموع 224 000 دج على خدمة FA-2026-011. قولي وقتاش يناسبك. بارك الله فيك 🙏
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <div class="btn gho" style="flex:1;font-size:14px">Français</div>
+            <div class="btn gho" style="flex:1;font-size:14px;border-color:var(--blue);color:var(--blue)">Darija</div>
+            <div class="btn pri" style="flex:1.2;font-size:14px">Envoyer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
