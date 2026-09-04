@@ -1,90 +1,71 @@
 # Mise en ligne sur Streamlit Community Cloud
 
-## 1. Pourquoi l'application affichait « Oh no. Error running app. »
+## 1. Structure : tout est à la racine
 
-Le fichier `.streamlit/config.toml` livré pour le PC contenait :
-
-```toml
-[server]
-headless = false
-port = 8501
-address = "localhost"
-
-[browser]
-serverAddress = "localhost"
-serverPort = 8501
-```
-
-Sur Streamlit Cloud, c'est l'hébergeur qui impose le port et l'adresse d'écoute.
-En forçant `port = 8501` / `address = localhost` et `headless = false`, le serveur
-n'écoutait pas où la plateforme l'attendait : dans le journal on lit exactement
-
-```
-❗ The service has encountered an error while checking the health of the
-   Streamlit app: Get "http://localhost:8501/healthz": connect: connection refused
-```
-
-et le navigateur affiche alors « Oh no. Error running app. ».
-
-Trois autres pièges ont été corrigés en même temps :
-
-| Problème | Correction |
-|---|---|
-| Point d'entrée : `app.py` est **dans** le paquet et importe `artisan_pro.*` | ajout de `streamlit_app.py` à la racine du dépôt |
-| `use_container_width` supprimé des versions récentes de Streamlit (le Cloud a installé la 1.63) | module `artisan_pro/ui/compat.py` : traduction automatique en `width="stretch"` |
-| Dossier du code en lecture seule en ligne (`artisan.db`, `exports/`) | bascule automatique vers un dossier inscriptible (dossier personnel, puis dossier temporaire) |
-
-## 2. Structure exacte du dépôt GitHub
+Le contenu de l'archive se dépose **directement** à la racine du dépôt GitHub,
+sans dossier intermédiaire :
 
 ```
 votre-depot/
-├─ streamlit_app.py         <-- « Main file path » sur Streamlit Cloud
+├─ app.py                 <-- l'application (Main file path)
+├─ streamlit_app.py       <-- alias : marche aussi comme Main file path
 ├─ requirements.txt
 ├─ .gitignore
+├─ Lancer_Artisan.bat     (PC Windows)
 ├─ .streamlit/config.toml
-├─ Lancer_Artisan.bat       (usage PC uniquement)
-└─ artisan_pro/
-   ├─ app.py
-   ├─ core/  ui/  assets/  design/  exports/
-   └─ .streamlit/config.toml
+├─ core/                  logique métier (base, PDF, normes NF C 15-100...)
+├─ ui/                    interface (thème, composants, écrans)
+├─ assets/fonts/          polices des PDF (à conserver !)
+├─ design/  exports/
+└─ demo_data.py           jeu de démonstration (optionnel)
 ```
 
-⚠ Le dossier `artisan_pro` doit rester **un dossier**, pas être vidé à la racine.
+## 2. Marche à suivre
 
-## 3. Marche à suivre
-
-1. Dans votre dépôt `tawat`, **supprimez tous les anciens fichiers** (surtout
-   l'ancien `app.py` et l'ancien `.streamlit/config.toml`).
-2. Déposez le contenu de cette archive à la racine du dépôt, puis validez
-   (`Commit changes`).
+1. Dans le dépôt `tawat`, **supprimez tous les anciens fichiers** (surtout
+   l'ancien `app.py`, l'ancien `.streamlit/config.toml` et un éventuel dossier
+   `artisan_pro`).
+2. `Add file ▸ Upload files` : glissez **tout le contenu de l'archive**
+   (les dossiers `core`, `ui`, `assets`, `design`, `exports`, `.streamlit` et
+   les fichiers de la racine), puis `Commit changes`.
 3. Sur [share.streamlit.io](https://share.streamlit.io) → votre application →
-   **Settings ▸ Main file path** : saisissez `streamlit_app.py`.
+   **Settings ▸ Main file path** : `app.py` (ou `streamlit_app.py`).
 4. **Reboot app**. Le journal doit se terminer par `Your app is live!`.
 
+> GitHub n'accepte pas les dossiers vides : si `exports/` disparaît à l'upload,
+> ce n'est pas grave, l'application le recrée toute seule.
+
+## 3. Ce qui empêchait le démarrage en ligne (corrigé)
+
+| Cause | Correction |
+|---|---|
+| `.streamlit/config.toml` forçait `headless = false`, `port = 8501`, `address = localhost` — or c'est l'hébergeur qui impose le port → `healthz : connection refused` puis « Oh no. Error running app. » | configuration compatible Cloud ; les options d'adresse/port sont passées en ligne de commande par `Lancer_Artisan.bat` sur PC |
+| Le code vivait dans un paquet `artisan_pro` alors que le fichier principal était `app.py` à la racine | structure à plat : `app.py`, `core/`, `ui/` à la racine |
+| Le Cloud installe Streamlit 1.63, où `use_container_width` n'existe plus | `ui/compat.py` traduit automatiquement en `width="stretch"` (aucun effet sur votre PC) |
+| Dossier du code en lecture seule en ligne (`artisan.db`, `exports/`) | bascule automatique vers un dossier inscriptible |
+
 Si une erreur subsiste : *Manage app ▸ Logs*, copiez le bloc `Traceback`
-(les détails d'erreur sont désormais affichés grâce à `showErrorDetails = true`).
+(les détails d'erreur sont affichés grâce à `showErrorDetails = true`).
 
 ## 4. À savoir sur la version en ligne
 
-* **Les données sont temporaires.** Streamlit Cloud redémarre la machine
-  régulièrement : la base `artisan.db` est alors remise à zéro.
-* **Tous les visiteurs partagent la même base.** L'adresse publique doit donc
-  rester privée, ou l'application être limitée (Settings ▸ Sharing).
-* Pour un usage professionnel réel : gardez le PC comme poste de travail, ou
-  passez à une base hébergée (Postgres/Supabase) — la couche `core/db.py` est
-  isolée, la migration est simple.
-* Vous pouvez forcer l'emplacement de la base avec la variable d'environnement
-  `ARTISAN_DB` (et celui des PDF avec `ARTISAN_EXPORTS`).
+* **Données temporaires** : Streamlit Cloud redémarre la machine régulièrement,
+  la base `artisan.db` est alors remise à zéro.
+* **Base partagée** : tous les visiteurs voient les mêmes devis. Gardez
+  l'adresse privée (Settings ▸ Sharing) tant qu'il n'y a pas de comptes.
+* Emplacements personnalisables : variables `ARTISAN_DB` et `ARTISAN_EXPORTS`.
+* Pour un usage professionnel durable : PC comme poste de travail, ou base
+  hébergée (Postgres/Supabase) — `core/db.py` est isolé, la migration est simple.
 
-## 5. Sur PC, rien ne change
+## 5. Sur PC
 
 ```
 Lancer_Artisan.bat
 ```
 
-ou bien :
+ou :
 
 ```
 python -m pip install -r requirements.txt
-python -m streamlit run streamlit_app.py --server.headless false
+python -m streamlit run app.py --server.headless false
 ```
