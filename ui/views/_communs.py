@@ -12,9 +12,20 @@ from .. import components as c
 
 # ------------------------------------------------------------------ navigation
 def aller(page, **etat):
-    st.session_state["page"] = str(page).strip().lower()
+    """Changement de page, compatible navigation multipage (st.Page) et repli."""
+    cle_page = str(page).strip().lower()
+    st.session_state["page"] = cle_page
     for cle, valeur in etat.items():
         st.session_state[cle] = valeur
+    try:
+        from ui import routes                      # import tardif : evite un cycle
+        if routes.moderne() and hasattr(st, "switch_page"):
+            _sections, pages = routes.construire()
+            if cle_page in pages:
+                st.switch_page(pages[cle_page])
+                return
+    except Exception:
+        pass
     st.rerun()
 
 
@@ -58,8 +69,11 @@ def selecteur_client(label="Client", cle="sel_client", valeur=None, autoriser_vi
     options = ([None] if autoriser_vide else []) + [x["id"] for x in liste]
     noms = {x["id"]: x["nom"] for x in liste}
     index = options.index(valeur) if valeur in options else 0
+    numeros = {identifiant: "[%02d] %s" % (i + 1, noms[identifiant])
+               for i, identifiant in enumerate(x["id"] for x in liste)}
     return st.selectbox(label, options, index=index, key=cle,
-                        format_func=lambda i: noms.get(i, "\u2014 Choisir un client \u2014"))
+                        format_func=lambda i: numeros.get(
+                            i, "\u2014 Choisir un client \u2014"))
 
 
 def selecteur_chantier(label="Chantier", cle="sel_chantier", valeur=None, client_id=None):
@@ -76,15 +90,31 @@ def selecteur_chantier(label="Chantier", cle="sel_chantier", valeur=None, client
 
 # ------------------------------------------------------------------ creations rapides
 def formulaire_client_rapide(prefixe="rapide"):
-    """Cr\u00e9ation d'un client en deux champs : nom + t\u00e9l\u00e9phone. Retourne l'id ou None."""
-    col1, col2 = st.columns([1.4, 1])
-    nom = col1.text_input("Nom du client *", key=prefixe + "_nom",
-                          placeholder="Mme Kadri, Si Ahmed\u2026")
-    tel = col2.text_input("T\u00e9l\u00e9phone", key=prefixe + "_tel", placeholder="0661 22 33 44")
-    if st.button("Enregistrer le client", type="primary", use_container_width=True,
-                 key=prefixe + "_ok", disabled=not nom.strip()):
-        client_id = db.run("INSERT INTO clients (nom,telephone,date_creation) VALUES (?,?,?)",
-                           (nom.strip(), tel.strip(), date.today().isoformat()))
+    """Cr\u00e9ation d'un client : nom, t\u00e9l\u00e9phone, wilaya. Retourne l'id ou None.
+
+    Libell\u00e9s bilingues verticaux (arabe gras au-dessus, fran\u00e7ais gris dessous).
+    """
+    from ui import champs
+
+    nom = champs.texte("\u0627\u0633\u0645 \u0627\u0644\u0632\u0628\u0648\u0646", "Nom du client", requis=True,
+                       icone="\U0001f464", key=prefixe + "_nom",
+                       placeholder="Mme Kadri, Si Ahmed\u2026")
+    col1, col2 = st.columns(2)
+    with col1:
+        tel = champs.texte("\u0627\u0644\u0647\u0627\u062a\u0641", "T\u00e9l\u00e9phone", icone="\U0001f4f1",
+                           key=prefixe + "_tel", placeholder="0661 22 33 44")
+    with col2:
+        ville = champs.texte("\u0627\u0644\u0628\u0644\u062f\u064a\u0629", "Commune / Ville",
+                             key=prefixe + "_ville", placeholder="Bab Ezzouar")
+    wilaya = champs.wilaya(key=prefixe + "_wilaya")
+    if st.button("\U0001f4be \u062d\u0641\u0637 \u00b7 Enregistrer le client", type="primary",
+                 use_container_width=True, key=prefixe + "_ok",
+                 disabled=not (nom or "").strip()):
+        client_id = db.run(
+            "INSERT INTO clients (nom,telephone,ville,wilaya,date_creation) "
+            "VALUES (?,?,?,?,?)",
+            (nom.strip(), (tel or "").strip(), (ville or "").strip(), wilaya,
+             date.today().isoformat()))
         c.toast("Client %s ajout\u00e9" % nom.strip())
         return client_id
     return None

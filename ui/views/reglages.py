@@ -10,7 +10,16 @@ import streamlit as st
 
 from core import catalog, db
 from core.fmt import dz, nombre
+from .. import champs
 from .. import components as c
+
+
+def _index_wilaya(valeur):
+    """Position de la wilaya enregistree dans la liste du selecteur."""
+    from core import wilayas
+    codes = wilayas.options(True)
+    code = wilayas.code_depuis(valeur)
+    return codes.index(code) if code in codes else 0
 
 
 def afficher():
@@ -35,6 +44,13 @@ def afficher():
                                         c.bi("\u0645\u0642\u0627\u0648\u0644", "Entrepreneur")],
                                        index=0 if db.get_param("type_compte") != "entrepreneur" else 1,
                                        key="rg_type")
+            wilaya = champs.wilaya(index=_index_wilaya(db.get_param("entreprise_wilaya")),
+                                   key="rg_wilaya")
+            rip = champs.texte("RIP / CCP", "Compte BaridiMob \u2014 sert au bouton de paiement",
+                               icone="\U0001f3e6", value=db.get_param("entreprise_rip"),
+                               key="rg_rip", placeholder="007 99999 1234567890 12")
+            st.caption(c.bi("\u0628\u062f\u0648\u0646 RIP \u064a\u0628\u0642\u0649 \u0632\u0631 BaridiMob \u0645\u0639\u0637\u0644",
+                            "Sans RIP, le bouton BaridiMob des cartes reste inactif."))
             col1, col2 = st.columns(2)
             tel = col1.text_input("T\u00e9l\u00e9phone", value=db.get_param("entreprise_tel"), key="rg_tel")
             ville = col2.text_input("Ville", value=db.get_param("entreprise_ville"), key="rg_ville")
@@ -50,6 +66,8 @@ def afficher():
                 db.set_param("type_compte",
                              "artisan" if type_compte.endswith("(Artisan)") else "entrepreneur")
                 db.set_param("entreprise_tel", tel)
+                db.set_param("entreprise_wilaya", str(wilaya or ""))
+                db.set_param("entreprise_rip", rip)
                 db.set_param("entreprise_ville", ville)
                 db.set_param("entreprise_adresse", adresse)
                 db.set_param("entreprise_rib", rib)
