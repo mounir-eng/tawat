@@ -144,3 +144,140 @@ Règle typographique retenue : **aucun emoji des blocs 2018-2020**
 (`U+1FA70–U+1FAFF`, `U+1F6D5–U+1F6DF`), non couverts par Segoe UI Emoji sur les
 Windows installés chez les artisans. Une vérification automatique bloque toute
 régression sur ce point.
+
+
+---
+
+# v13 \u2014 Refonte visuelle bilingue + architecture multipage
+
+## 1. Libell\u00e9s bilingues verticaux (`ui/champs.py`)
+
+Avant : `"\u0627\u0644\u0627\u0633\u0645 / Nom"` sur une seule ligne (illisible, coup\u00e9 sur t\u00e9l\u00e9phone).
+Apr\u00e8s : un bloc `.lab2` par champ \u2014 **arabe en gras au-dessus**, fran\u00e7ais en
+sous-titre gris plus petit, ic\u00f4ne \u00e0 gauche, ast\u00e9risque rouge si obligatoire,
+bulle `?` si aide.
+
+```
+champs.texte("\u0627\u0644\u0627\u0633\u0645", "Nom du client", requis=True, icone="\U0001f464", key="cl_nom")
+```
+
+Tous les widgets passent par le m\u00eame moteur (`label_visibility="collapsed"` +
+HTML du libell\u00e9) : `texte`, `zone`, `nombre`, `montant`, `choix`, `multi`,
+`radio`, `segments`, `bascule`, `date_`, `wilaya`.
+
+## 2. Options de s\u00e9lecteurs format\u00e9es (`core/wilayas.py`)
+
+Les 58 wilayas sont stock\u00e9es par **code num\u00e9rique** et affich\u00e9es
+`"[16] \u0627\u0644\u062c\u0632\u0627\u0626\u0631 - Alger"` via `format_func`. `champs.wilaya()` retourne donc un entier
+(stable en base), jamais une cha\u00eene de caract\u00e8res. Les clients sont list\u00e9s
+de la m\u00eame fa\u00e7on : `"[01] Ammi Salah"`.
+
+## 3. Listings en cartes CSS (`ui/cartes.py`)
+
+Une grille `.karts` en `auto-fill / minmax(296px, 1fr)` : 3 colonnes sur PC,
+2 sur tablette, 1 sur t\u00e9l\u00e9phone. Chaque carte porte : avatar \u00e0 initiales,
+nom arabe + nom latin, note en \u00e9toiles, badge de disponibilit\u00e9, tags
+m\u00e9tier / wilaya, tarif, puis **trois actions** :
+
+| Action | Lien | Inactif si |
+|---|---|---|
+| Appeler | `tel:+213\u2026` | num\u00e9ro vide |
+| WhatsApp | `wa.me/213\u2026` + message pr\u00e9-r\u00e9dig\u00e9 | num\u00e9ro vide |
+| BaridiMob | WhatsApp + RIP et montant | RIP absent (R\u00e9glages) |
+
+**Performance** : toute la grille est rendue en **un seul appel HTML**, pas un
+widget Streamlit par ligne. Le clic sur une carte ouvre la fiche via un lien
+interne `?fiche=<id>`.
+
+## 4. Navigation multipage (`ui/routes.py`)
+
+10 pages d\u00e9clar\u00e9es avec `st.Page`, group\u00e9es en 4 sections par
+`st.navigation` : Atelier \u00b7 R\u00e9seau \u00b7 Argent \u00b7 Outils. Chaque page a sa
+propre URL. Repli automatique sur l'ancien routeur si la version de Streamlit
+install\u00e9e est plus ancienne (`routes.moderne()`), plus une barre d'onglets
+basse sur t\u00e9l\u00e9phone.
+
+## 5. M\u00e9moire d'\u00e9cran (`ui/etat.py`)
+
+Probl\u00e8me Streamlit : la valeur d'un widget dispara\u00eet de `session_state` d\u00e8s
+qu'il n'est plus affich\u00e9. Solution : un magasin durable `f:<\u00e9cran>:<champ>`
+aliment\u00e9 par `on_change`, plus `p:<\u00e9cran>` pour la fiche ouverte. R\u00e9sultat :
+recherche, m\u00e9tier, wilaya, tri et filtre \u00ab disponibles \u00bb sont retrouv\u00e9s
+intacts au retour sur la page, et le compteur \u00ab X filtres \u00bb pilote le bouton
+de remise \u00e0 z\u00e9ro.
+
+## 6. Typographie (`ui/theme.py`, `CSS_V12`)
+
+`Cairo` pour l'arabe (`--pol-ar`), `Inter` pour le latin (`--pol-fr`), zones
+tactiles de 44 px (`--h-ch`), rayons de 12 px, colonnes align\u00e9es par le bas,
+et une section `@media (max-width:640px)` qui passe en une colonne et masque
+les sous-titres des boutons d'action.
+
+
+---
+
+## v14 - Coquille mobile-first (abandon du plein ecran bureau)
+
+L'application n'est plus une page web large avec un menu lateral : c'est une
+application telephone, centree, meme sur un grand ecran.
+
+### 1. Canevas etroit et centre
+
+| Jeton | Valeur | Role |
+| --- | --- | --- |
+| `--canevas` | `650px` | largeur maximale du contenu, centree (`margin: auto`) |
+| `--r-carte` | `16px` | rayon de toutes les cartes |
+| `--pad-carte` | `12px` | padding interieur serre |
+| `--h-act` | `40px` | hauteur des boutons d'action |
+| `--sh-doux` | `0 1px 2px / 0 6px 16px` | ombre discrete des cartes |
+| `--sh-flott` | ombre large | "telephone pose sur la table" (>= 900 px) |
+
+- `.block-container` et `[data-testid="stMainBlockContainer"]` sont limites a
+  `var(--canevas)` avec un padding de `0.55rem 0.85rem 4.2rem`.
+- Au-dela de 900 px de large, la colonne prend un fond blanc, un rayon de 26 px
+  et une ombre flottante : l'effet "maquette de telephone" sans iframe.
+- La barre laterale est totalement supprimee (`stSidebar`, `stSidebarNav`,
+  `collapsedControl`), l'en-tete Streamlit devient transparent (2,2 rem).
+
+### 2. Navigation : barre d'application + onglets hauts
+
+- `.appbar` : collante en haut, logo degrade 36 px, nom du produit en gras,
+  nom de l'entreprise en sous-titre, pastille `.now` avec la page courante.
+- `.topnav` : rangee collante (`top: 52px`) de 10 pilules `.tab` de 36 px,
+  defilable horizontalement (`overflow-x: auto`, scrollbar masquee) ;
+  `.tab.on` passe en degrade bleu.
+- Chaque pilule est un lien `<a href="..." target="_self">` vers l'`url_path`
+  de la page : le changement d'ecran ne declenche aucun rerun de widget.
+- `routes.executer()` appelle `st.navigation(sections, position="hidden")` puis
+  `routes.barre_haut()`. Si la version de Streamlit ne connait pas `position`,
+  le menu natif est laisse visible via `theme.montrer_sidebar()` ; sans
+  `st.Page`, `executer_repli()` dessine la barre d'onglets + 5 boutons.
+
+### 3. Filtres compacts (plus de colonne de filtres)
+
+- Recherche en ligne pleine largeur, directement sous les onglets.
+- Wilaya, metier, tri et bascule de disponibilite sont ranges dans un
+  `st.expander` ("مرشحات · Filtres (n)") ouvert seulement si un filtre est pose.
+- `cartes.puces_filtres()` resume les filtres actifs en puces `.fbar .chip`
+  (un seul rendu HTML), pour garder le haut d'ecran lisible.
+
+### 4. Cartes et actions
+
+- `.karts` passe a une seule colonne (`grid-template-columns: 1fr`) a toutes
+  les largeurs : on scrolle, on ne balaye pas.
+- `.kart` : rayon 16 px, ombre douce, padding serre, avatar 38 px,
+  etiquettes 10,5 px.
+- `.acts` devient une pile verticale : chaque action (Appeler, WhatsApp,
+  BaridiMob) est un bouton pleine largeur de 40 px, rayon 12 px, libelle
+  aligne a gauche, arabe + francais visibles y compris sur telephone.
+  WhatsApp en vert plein `#12B76A`, Appel en bleu clair, BaridiMob en ambre.
+
+### 5. Widgets
+
+Champs et boutons ramenes a 42 px (rayon 12 px), espacement vertical reduit
+(`gap: .55rem`), `.hero` en rayon 20 px, `.kpi` en rayon 16 px, `st.tabs` en
+pilules. Deux ruptures : `max-width: 640px` (telephone) et `min-width: 900px`
+(cadre flottant).
+
+Tout le CSS de cette version vit dans `ui/theme.py` (`CSS_V14`), injecte en
+cinquieme couche par `theme.appliquer()`.

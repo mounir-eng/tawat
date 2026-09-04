@@ -69,3 +69,27 @@ ou :
 python -m pip install -r requirements.txt
 python -m streamlit run app.py --server.headless false
 ```
+
+## 6. Écran blanc en ligne (corrigé)
+
+**Symptôme** : le journal se termine par `Uvicorn server started on :::8501`,
+aucune erreur n'apparaît, mais la page reste blanche.
+
+**Cause** : `streamlit_app.py` se contentait d'un `import app`, et `app.py`
+dessinait l'interface au moment de son import. Or Streamlit **relance le script
+principal à chaque interaction**, alors qu'un module Python importé n'est
+chargé qu'une seule fois. Dès la deuxième exécution — et en ligne la première
+est consommée par le contrôle de santé de la plateforme — plus rien n'était
+dessiné. Sur PC le problème ne se voyait pas car `app.py` était lancé
+directement.
+
+**Correction** :
+
+* `streamlit_app.py` importe la fonction puis l'appelle explicitement
+  (`from app import main` puis `main()`) — donc à chaque exécution ;
+* `app.py` ne déclenche plus rien depuis un import (`if __name__ == "__main__"`) ;
+* toute erreur de chargement s'affiche maintenant à l'écran avec son
+  `Traceback` : plus jamais de page blanche muette.
+
+Les deux réglages fonctionnent : `Main file path` = `streamlit_app.py` **ou**
+`app.py`.
