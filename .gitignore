@@ -1,0 +1,27 @@
+# Bases de donnees locales (chaque utilisateur a la sienne)
+artisan.db
+artisan.db-wal
+artisan.db-shm
+*.db-journal
+
+# PDF generes
+exports/*.pdf
+
+# Secrets Streamlit
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Systeme
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# NB : les polices assets/fonts/*.ttf DOIVENT rester dans le depot
+#      (elles servent a ecrire les accents dans les PDF).
