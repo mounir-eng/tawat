@@ -144,7 +144,9 @@ def main():
     navigation()
 
 
+# Streamlit relance CE script a chaque interaction : main() doit donc etre
+# appele a chaque execution, et jamais depuis un simple import (un module
+# importe n'est charge qu'une seule fois -> ecran blanc aux executions
+# suivantes). C'est streamlit_app.py qui appelle main() explicitement.
 if __name__ == "__main__":
-    main()
-else:
     main()
