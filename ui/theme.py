@@ -545,3 +545,426 @@ def appliquer():
     st.markdown(CSS, unsafe_allow_html=True)
     st.markdown(CSS_V8, unsafe_allow_html=True)
     st.markdown(CSS_V9, unsafe_allow_html=True)
+    st.markdown(CSS_V12, unsafe_allow_html=True)
+    st.markdown(CSS_V14, unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------------------------
+# v12 : libelles bilingues verticaux, cartes d'annuaire, navigation multipage
+# ---------------------------------------------------------------------------
+CSS_V12 = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --pol-ar:'Cairo','Segoe UI',Tahoma,sans-serif;
+  --pol-fr:'Inter','Segoe UI',Roboto,sans-serif;
+  --r-ch:12px;
+  --h-ch:44px;
+}
+html, body, .stApp, [class*="css"]{ font-family:var(--pol-fr); }
+.stApp{ -webkit-font-smoothing:antialiased; }
+
+/* ---------------------------------------------------- libelle vertical .lab2 */
+.lab2{
+  display:grid; grid-template-columns:auto 1fr; align-items:center;
+  gap:8px; margin:2px 0 5px; line-height:1.15;
+}
+.lab2 .ic{ font-size:15px; opacity:.85; width:20px; text-align:center; }
+.lab2 .tx{ display:flex; flex-direction:column; min-width:0; }
+.lab2 .ar{
+  font-family:var(--pol-ar); font-size:15px; font-weight:700; color:var(--encre);
+  direction:rtl; text-align:right; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis;
+}
+.lab2 .fr{
+  font-family:var(--pol-fr); font-size:11.6px; font-weight:500; color:var(--gris);
+  letter-spacing:.01em; margin-top:1px;
+}
+.lab2 .req{ color:var(--rouge); font-weight:700; font-size:13px; }
+.lab2 .hint{
+  justify-self:end; width:17px; height:17px; border-radius:50%;
+  background:var(--surf2); color:var(--gris); font-size:11px; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center; cursor:help;
+}
+
+/* titre de section */
+.sec2{
+  display:flex; align-items:baseline; gap:8px; margin:14px 0 8px;
+  padding-bottom:6px; border-bottom:1px solid var(--bord);
+}
+.sec2 .ic{ font-size:15px; }
+.sec2 .ar{ font-family:var(--pol-ar); font-weight:700; font-size:15px; color:var(--encre); }
+.sec2 .fr{ font-size:11.6px; color:var(--gris); font-weight:500; }
+
+/* ------------------------------------------------ alignement des champs */
+.stTextInput input, .stNumberInput input, .stDateInput input,
+.stTextArea textarea, div[data-baseweb="select"] > div{
+  min-height:var(--h-ch); border-radius:var(--r-ch) !important;
+  font-family:var(--pol-fr); font-size:14px;
+}
+.stTextArea textarea{ min-height:68px; }
+div[data-baseweb="select"] *{ font-family:var(--pol-fr); }
+.stButton > button, .stDownloadButton > button, .stLinkButton > a{
+  min-height:var(--h-ch); border-radius:var(--r-ch); font-weight:600;
+  font-family:var(--pol-fr);
+}
+[data-testid="stHorizontalBlock"]{ gap:12px; align-items:flex-end; }
+[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]{
+  border-radius:16px;
+}
+
+/* ------------------------------------------------------- ligne resultats */
+.resline{
+  display:flex; align-items:center; gap:8px; margin:12px 2px 8px;
+  font-size:12.5px; color:var(--gris);
+}
+.resline b{ font-size:15px; color:var(--encre); font-weight:700; }
+.resline span{ font-family:var(--pol-ar); font-weight:600; color:var(--txt); }
+.resline i{ font-style:normal; }
+.resline .flt{
+  margin-left:auto; background:var(--surf2); color:var(--txt);
+  border-radius:999px; padding:3px 9px; font-size:11px; font-weight:600;
+}
+
+/* ------------------------------------------------------ grille de cartes */
+.karts{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(296px, 1fr));
+  gap:12px; margin:4px 0 8px;
+}
+.kart{
+  background:#fff; border:1px solid var(--bord); border-left:4px solid var(--bleu);
+  border-radius:16px; box-shadow:var(--sh); overflow:hidden;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.kart:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(24,34,48,.10); }
+.kart.k-red{ border-left-color:var(--rouge); }
+.kart.k-green{ border-left-color:var(--vert); }
+.kart.k-amber{ border-left-color:var(--ambre); }
+.kart.k-grey{ border-left-color:#C7CDD4; }
+.kart .prof{ display:block; padding:12px 13px 6px; text-decoration:none; color:inherit; }
+.kart .tete{ display:flex; align-items:center; gap:10px; }
+.kart .av{
+  width:40px; height:40px; flex:0 0 40px; border-radius:12px;
+  background:var(--grad); color:#fff; font-weight:700; font-size:14px;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.kart .idt{ display:flex; flex-direction:column; min-width:0; flex:1; }
+.kart .idt b{
+  font-family:var(--pol-ar); font-size:15.5px; font-weight:700; color:var(--encre);
+  direction:rtl; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.kart .idt i{ font-style:normal; font-size:12px; color:var(--txt); font-weight:500; }
+.kart .idt .sous{ font-size:11.5px; color:var(--gris); }
+.kart .note{
+  font-size:11px; color:var(--ambre-d); font-weight:600; white-space:nowrap;
+}
+.kart .note b{ color:var(--txt); font-family:var(--pol-fr); }
+.kart .dispo{
+  margin-left:6px; background:#E9F7EF; color:var(--vert-d); border-radius:999px;
+  padding:3px 8px; font-size:10.5px; font-weight:700; white-space:nowrap;
+}
+.kart .dispo.no{ background:#FDECEA; color:var(--rouge-d); }
+.kart .tags{ display:flex; flex-wrap:wrap; gap:5px; margin:9px 0 2px; }
+.kart .tag{
+  background:var(--doux); border:1px solid var(--bord); color:var(--txt);
+  border-radius:8px; padding:3px 7px; font-size:10.8px; font-weight:600;
+  max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.kart .tag.m{ background:#EFF4FF; border-color:#DCE6FF; color:var(--bleu-d); }
+.kart .tag.w{ background:#F4F0FF; border-color:#E5DDFF; color:#5B4CC4; }
+.kart .mny{
+  display:flex; align-items:baseline; gap:6px; padding:8px 13px 2px;
+  border-top:1px dashed var(--bord); margin-top:8px;
+}
+.kart .mny b{ font-size:17px; font-weight:800; color:var(--encre); }
+.kart .mny i{ font-style:normal; font-size:10.8px; color:var(--gris); font-weight:600; }
+
+/* ------------------------------------------------------------- actions */
+.acts{ display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; padding:9px 11px 11px; }
+.acts .act{
+  min-height:var(--h-ch); border-radius:var(--r-ch); text-decoration:none;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  font-weight:700; font-size:11.5px; border:1px solid transparent;
+  transition:filter .12s ease;
+}
+.acts .act .ic{ font-size:14px; }
+.acts .act .tx{ display:flex; flex-direction:column; line-height:1.05; min-width:0; }
+.acts .act .tx b{ font-family:var(--pol-ar); font-size:11.5px; font-weight:700; }
+.acts .act .tx i{ font-style:normal; font-size:9.5px; opacity:.85; font-weight:600; }
+.acts .act:hover{ filter:brightness(.96); }
+.acts .act.call{ background:#EFF4FF; color:var(--bleu-d); border-color:#DCE6FF; }
+.acts .act.wa{ background:#E9F7EF; color:#128C7E; border-color:#CDEBDA; }
+.acts .act.bm{ background:#FFF6E5; color:var(--ambre-d); border-color:#F6E4BE; }
+.acts .act.off{
+  background:var(--surf2); color:#A6AFBA; border-color:var(--bord); cursor:not-allowed;
+}
+
+/* --------------------------------------------------- navigation multipage */
+[data-testid="stSidebarNav"] ul{ padding-top:2px; }
+[data-testid="stSidebarNav"] a{
+  border-radius:10px; font-weight:600; font-size:13.5px; font-family:var(--pol-fr);
+}
+[data-testid="stSidebarNav"] a:hover{ background:var(--doux); }
+[data-testid="stSidebarNav"] span{ font-family:var(--pol-ar); }
+.side-marque{
+  display:flex; align-items:center; gap:9px; padding:10px 8px 12px;
+  border-bottom:1px solid var(--bord); margin-bottom:6px;
+}
+.side-marque .av{
+  width:34px; height:34px; border-radius:10px; background:var(--grad); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; font-weight:700;
+}
+.side-marque .tx{ display:flex; flex-direction:column; min-width:0; }
+.side-marque .tx b{ font-size:13.5px; color:var(--encre); }
+.side-marque .tx i{ font-style:normal; font-size:10.8px; color:var(--gris); }
+
+/* ------------------------------------------------------------ telephone */
+@media (max-width:640px){
+  .karts{ grid-template-columns:1fr; gap:10px; }
+  .lab2 .ar{ font-size:14.5px; }
+  .lab2 .fr{ font-size:11px; }
+  .kart .idt b{ font-size:15px; }
+  .acts{ grid-template-columns:repeat(3, 1fr); gap:5px; padding:8px 9px 10px; }
+  .acts .act .tx i{ display:none; }
+  .resline{ margin:10px 2px 6px; }
+  [data-testid="stHorizontalBlock"]{ gap:8px; }
+}
+@media (min-width:1100px){
+  .karts{ grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); }
+}
+.hero-sub{ font-size:12.5px; opacity:.92; margin-top:8px; line-height:1.5; }
+</style>
+"""
+
+
+# ---------------------------------------------------------------------------
+# v14 : coquille mobile-first \u2014 canevas etroit 650 px, barre d'onglets haute,
+# cartes compactes et boutons d'action pleine largeur.
+# ---------------------------------------------------------------------------
+CSS_V14 = """
+<style>
+:root{
+  --canevas:650px;      /* largeur maximale de l'application */
+  --r-carte:16px;       /* rayon des cartes */
+  --pad-carte:12px;     /* padding interieur compact */
+  --h-act:40px;         /* hauteur des boutons d'action */
+  --sh-doux:0 1px 2px rgba(16,24,40,.05), 0 6px 16px rgba(16,24,40,.06);
+  --sh-flott:0 10px 28px rgba(16,24,40,.10);
+}
+
+/* =======================================================================
+   1. CANEVAS MOBILE CENTRE (650 px) : l'application ressemble a une appli
+   telephone, meme sur un grand ecran.
+   ======================================================================= */
+.block-container,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewContainer"] .main .block-container{
+  max-width:var(--canevas) !important;
+  margin-left:auto !important; margin-right:auto !important;
+  padding:0.55rem 0.85rem 4.2rem !important;
+}
+[data-testid="stAppViewContainer"], .stApp{ background:var(--page); }
+
+/* Sur grand ecran : la colonne devient un "telephone" pose sur la page. */
+@media (min-width:900px){
+  .block-container, [data-testid="stMainBlockContainer"]{
+    background:#fff; border:1px solid var(--bord);
+    border-radius:26px; box-shadow:var(--sh-flott);
+    margin-top:12px !important; margin-bottom:24px !important;
+    padding:0.9rem 1rem 1.6rem !important;
+  }
+}
+
+/* Plus de barre laterale : toute la navigation passe en haut. */
+[data-testid="stSidebar"], [data-testid="stSidebarNav"],
+[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"],
+section[data-testid="stSidebar"]{ display:none !important; width:0 !important; }
+[data-testid="stHeader"], header[data-testid="stHeader"]{
+  background:transparent; height:2.2rem; min-height:2.2rem;
+}
+[data-testid="stToolbar"]{ right:.4rem; }
+#MainMenu, footer{ visibility:hidden; }
+
+/* =======================================================================
+   2. BARRE D'APPLICATION + ONGLETS HAUTS (remplace le menu lateral)
+   ======================================================================= */
+.appbar{
+  position:sticky; top:0; z-index:70;
+  display:flex; align-items:center; gap:10px;
+  padding:8px 2px 8px; margin:-2px 0 6px;
+  background:linear-gradient(180deg, var(--page) 72%, rgba(242,244,247,0));
+  backdrop-filter:blur(8px);
+}
+.appbar .lg{
+  width:36px; height:36px; flex:0 0 36px; border-radius:12px;
+  background:var(--grad); color:#fff; font-size:17px;
+  display:inline-flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh-doux);
+}
+.appbar .tx{ display:flex; flex-direction:column; min-width:0; }
+.appbar .tx b{
+  font-family:var(--pol-fr); font-size:14.5px; font-weight:800;
+  color:var(--encre); line-height:1.1;
+}
+.appbar .tx i{
+  font-style:normal; font-size:11px; color:var(--gris); font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:56vw;
+}
+.appbar .now{
+  margin-left:auto; background:#fff; border:1px solid var(--bord);
+  border-radius:999px; padding:5px 10px; font-size:11px; font-weight:700;
+  color:var(--txt); box-shadow:var(--sh-doux); white-space:nowrap;
+}
+
+.topnav{
+  position:sticky; top:52px; z-index:65;
+  display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;
+  padding:4px 2px 8px; margin:0 0 8px;
+  -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg, var(--page) 70%, rgba(242,244,247,0));
+}
+.topnav::-webkit-scrollbar{ display:none; }
+.topnav .tab{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:6px;
+  text-decoration:none; white-space:nowrap;
+  background:#fff; border:1px solid var(--bord); border-radius:999px;
+  padding:7px 12px; min-height:36px;
+  color:var(--txt); font-size:12.5px; font-weight:700;
+  box-shadow:var(--sh-doux); transition:all .12s ease;
+}
+.topnav .tab .ic{ font-size:14px; }
+.topnav .tab .ar{ font-family:var(--pol-ar); font-weight:700; }
+.topnav .tab:hover{ border-color:#CBD5E1; transform:translateY(-1px); }
+.topnav .tab.on{
+  background:var(--grad); border-color:transparent; color:#fff;
+  box-shadow:0 6px 16px rgba(45,91,255,.28);
+}
+.topnav .tab.on .ar{ color:#fff; }
+
+/* =======================================================================
+   3. FILTRES COMPACTS EN HAUT (au lieu d'une colonne laterale)
+   ======================================================================= */
+[data-testid="stExpander"]{
+  border:1px solid var(--bord) !important; border-radius:var(--r-carte) !important;
+  background:#fff; box-shadow:var(--sh-doux); overflow:hidden;
+  margin:2px 0 8px;
+}
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] details > summary{
+  padding:9px 12px !important; font-size:13px; font-weight:700;
+  font-family:var(--pol-fr); color:var(--encre);
+}
+[data-testid="stExpander"] summary p{ font-size:13px !important; font-weight:700; }
+[data-testid="stExpander"] [data-testid="stExpanderDetails"]{
+  padding:2px 12px 10px !important;
+}
+.fbar{
+  display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+  margin:0 2px 8px;
+}
+.fbar .chip{
+  display:inline-flex; align-items:center; gap:5px;
+  background:#fff; border:1px solid var(--bord); border-radius:999px;
+  padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--txt);
+  box-shadow:var(--sh-doux); max-width:100%;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.fbar .chip .ar{ font-family:var(--pol-ar); }
+.fbar .chip.on{ background:#EFF4FF; border-color:#DCE6FF; color:var(--bleu-d); }
+.fbar .chip.zero{ color:var(--gris); font-weight:600; }
+
+/* =======================================================================
+   4. CARTES COMPACTES : une seule colonne, rayon 16 px, ombre douce
+   ======================================================================= */
+.karts{ grid-template-columns:1fr !important; gap:10px !important; }
+.kart{
+  border-radius:var(--r-carte); box-shadow:var(--sh-doux);
+  border-left-width:4px;
+}
+.kart .prof{ padding:var(--pad-carte) var(--pad-carte) 4px; }
+.kart .tete{ gap:9px; }
+.kart .av{ width:38px; height:38px; flex:0 0 38px; border-radius:11px; }
+.kart .idt b{ font-size:15px; }
+.kart .tags{ margin:8px 0 0; gap:4px; }
+.kart .tag{ font-size:10.5px; padding:2px 7px; }
+.kart .mny{ padding:7px var(--pad-carte) 0; margin-top:7px; }
+.kart .mny b{ font-size:16px; }
+
+/* Boutons d'action : pleine largeur, empiles, compacts. */
+.acts{
+  display:flex !important; flex-direction:column; gap:6px;
+  padding:9px var(--pad-carte) var(--pad-carte);
+}
+.acts .act{
+  width:100%; min-height:var(--h-act); border-radius:12px;
+  justify-content:flex-start; gap:9px; padding:0 12px;
+  font-size:12.5px;
+}
+.acts .act .ic{ font-size:15px; width:18px; text-align:center; }
+.acts .act .tx{
+  flex-direction:row; align-items:baseline; gap:7px; flex:1; min-width:0;
+}
+.acts .act .tx b{ font-size:12.5px; }
+.acts .act .tx i{ font-size:10.5px; opacity:.8; display:inline !important; }
+.acts .act.wa{ background:#12B76A; border-color:#12B76A; color:#fff; }
+.acts .act.wa .tx i{ color:#EAFBF2; opacity:.95; }
+.acts .act.call{ background:#EFF4FF; border-color:#DCE6FF; color:var(--bleu-d); }
+.acts .act.bm{ background:#FFF6E5; border-color:#F6E4BE; color:var(--ambre-d); }
+
+/* =======================================================================
+   5. WIDGETS COMPACTS (rythme vertical serre, tout reste tactile)
+   ======================================================================= */
+.stTextInput input, .stNumberInput input, .stDateInput input,
+div[data-baseweb="select"] > div{ min-height:42px; border-radius:12px !important; }
+.stButton > button, .stDownloadButton > button, .stLinkButton > a{
+  min-height:42px; border-radius:12px; font-size:13px;
+}
+[data-testid="stVerticalBlock"]{ gap:.55rem; }
+[data-testid="stHorizontalBlock"]{ gap:8px; }
+[data-testid="stMetric"], [data-testid="stExpander"] div[data-testid="stVerticalBlock"]{ gap:.4rem; }
+.hero{ border-radius:20px; padding:14px 15px; }
+.kpis{ gap:8px; }
+.kpi{ border-radius:var(--r-carte); padding:10px 11px; box-shadow:var(--sh-doux); }
+h1, h2, h3{ letter-spacing:-.01em; }
+.stTabs [data-baseweb="tab-list"]{ gap:4px; }
+.stTabs [data-baseweb="tab"]{
+  border-radius:999px; padding:6px 12px; font-size:12.5px; font-weight:700;
+}
+
+/* =======================================================================
+   6. TELEPHONE : plein cadre, rien ne depasse
+   ======================================================================= */
+@media (max-width:640px){
+  .block-container, [data-testid="stMainBlockContainer"]{
+    padding:0.45rem 0.7rem 4.6rem !important;
+  }
+  .appbar{ top:0; padding:6px 0; }
+  .appbar .tx b{ font-size:13.5px; }
+  .topnav{ top:48px; }
+  .topnav .tab{ font-size:12px; padding:6px 11px; }
+  .kart .idt b{ font-size:14.5px; }
+  .acts .act .tx i{ display:inline !important; }
+  .lab2 .ar{ font-size:14.5px; }
+}
+@media (min-width:1100px){
+  .karts{ grid-template-columns:1fr !important; }
+}
+</style>
+"""
+
+# CSS de secours : reaffiche le menu lateral sur les versions de Streamlit
+# trop anciennes pour cacher la navigation native (aucune page ne serait
+# atteignable sinon).
+CSS_SIDEBAR_VISIBLE = """
+<style>
+[data-testid="stSidebar"], [data-testid="stSidebarNav"],
+[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"],
+section[data-testid="stSidebar"]{ display:block !important; width:auto !important; }
+</style>
+"""
+
+
+def montrer_sidebar():
+    """Repli : rend le menu lateral natif visible (Streamlit ancien)."""
+    st.markdown(CSS_SIDEBAR_VISIBLE, unsafe_allow_html=True)
